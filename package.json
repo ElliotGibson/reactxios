@@ -1,9 +1,12 @@
 {
  "name": "reactxios",
- "version": "0.0.1",
+ "version": "0.0.2",
  "description": "A simple and declaritive wrapper around axios that provides dynamic configurability using react",
  "main": "dist/cjs/index.js",
  "module": "dist/esm/index.js",
+ "files": [
+  "dist/*"
+ ],
  "repository": "https://github.com/ElliotGibson/reactxios.git",
  "author": "Elliot Gibson <elliot@elliotgibson.com>",
  "license": "MIT",
@@ -40,8 +43,5 @@
    "default": "./dist/esm/index.js"
   }
  },
- "dependencies": {
-  "@rollup/plugin-sucrase": "^5.0.0",
-  "rollup-plugin-typescript2": "^0.34.1"
- }
+ "dependencies": {}
 }
