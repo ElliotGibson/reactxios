@@ -1,9 +1,10 @@
 {
  "name": "reactxios",
- "version": "0.0.2",
+ "version": "0.0.3",
  "description": "A simple and declaritive wrapper around axios that provides dynamic configurability using react",
  "main": "dist/cjs/index.js",
  "module": "dist/esm/index.js",
+ "types":"dist/index.d.ts",
  "files": [
   "dist/*"
  ],
