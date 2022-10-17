@@ -4,7 +4,7 @@
 
 ## Motivation
 
-This project originally sprouted from a work requirement, being able to set and configure axios dynamically for a set of multi-tenant apps, while avoiding duplicating interceptors and allowing for integration with other libraries that use hooks. In theory the problem is quite simple in that you can set axios settings whenever the component renders, however this can quickly becomes in-efficient if the provider re-renders many times, especially in large scale applications where the performance of axios (/data fetching) directly reflects the performance of the app. The first solution was adding a "hasSetup" property to axios and checking its status during rendering to run the "setup" function, this worked and was effective and quite elegant, however it had several flaws: 1) - once the setup function had run, axios could no longer be setup again. 2) - if the config changed the setup function would not run. 3) - the provider has no support for any axios teardown / cleanup.
+This project sprouted from a desire of being able to set and configure axios dynamically in multi-tenant apps, while avoiding duplicating interceptors and allowing for integration with other libraries that use hooks. In theory the problem is quite simple in that you can set axios settings whenever the component renders, however this can quickly becomes in-efficient if the provider re-renders many times, especially in large scale applications where the performance of axios (/data fetching) directly reflects the performance of the app. 
 
 This library addresses these issues by instead using react refs and a DeepEquality check to run the setup and optional teardown functions.
 
@@ -42,7 +42,7 @@ const setup = (instance, { config }){
 
 export function App({PageComponent, pageProps: { config, ...pageProps }}){
 
-  return <Reaactxios 
+  return <Reactxios 
     config={config} 
     setup={setup}>
     <PageComponent {...pageProps} />
@@ -138,77 +138,30 @@ Below is a demonstration using Reactxios and msal to add an access token to all 
 > next.js typescript demo
 ```typescript
 import React, { FC, PropsWithChildren } from "react";
-import { IPublicClientApplication } from "@azure/msal-browser";
-import { useMsal } from "@azure/msal-react";
 import { useConfigs } from "../hooks/useConfigs";
-
 
 import { Reactxios, SetupHook } from "reactxios"
 
-
 export interface ConfigProps{
-  /** Msal instance **/
-  msal: IPublicClientApplication
   /** Api Url **/
   url: string;
-  /** Msal tenant **/
-  tenant: string;
-  /** Msal scopes **/
-  scopes: string[];
 }
 
 const Setup: SetupHook<ConfigProps> = (
   instance,
   {
-    msal,
-    url,
-    tenant,
-    scopes
+    url
   }
 ) => {
   axiosInstance.defaults.baseURL = url;
-  axiosInstance.interceptors.request.use( ( async (cfg) => {
-    const account = msal.getAccountByLocalId(localStorage.getItem("accountId") || "");
-    msal.setActiveAccount(account);
-    const token = await msal
-      .acquireTokenSilent({
-        scopes:[`https://${tenant}.onmicrosoft.com/api/access_as_user`],
-        account: account || undefined
-      })
-      .then( res => res?.accessToken )
-      .catch( err => {
-        if (err instanceof InteractionRequiredAuthError){
-          if (account){
-            msal
-              .acquireTokenRedirect({
-                scopes,
-                account
-              })
-              .catch( tokenErr => (toast as {error:(a:string)=>void}).error(tokenErr?.message))
-          }
-        }
-      });
-    
-    cfg.headers = cfg?.headers || {};
-    cfg.headers.Accept = "application/json";
-    cfg.headers["Content-Type"] = "application/json";
-    cfg.headers.Authorization = `Bearer ${token}`; 
-
-    return cfg;
-  }))
 }
 
 export const Configs = FC<PropsWithChildren>({children}) => {
-  const { instance } = useMsal();
-  const { url, tenant, scopes } = useConfigs();
+  const { url } = useConfigs();
 
   return <Reactxios<ConfigProps>
     setup={Setup}
-
-    msal={instance}
     url={url}
-    tenant={tenant}
-    scopes={scopes}
   >
     { children }
   </Reactxios>
